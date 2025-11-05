@@ -9,7 +9,7 @@
   "unpkg": "dist/chartjs-plugin-streaming.min.js",
   "main": "dist/chartjs-plugin-streaming.js",
   "module": "dist/chartjs-plugin-streaming.esm.js",
-  "types": "types/index.d.ts",
+  "types": "src/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/aziham/chartjs-plugin-streaming.git"
@@ -26,12 +26,11 @@
   ],
   "files": [
     "dist/*.js",
-    "types/*.d.ts"
+    "src/types/*.d.ts"
   ],
   "scripts": {
     "build": "vite build && vite build --config vite.min.config.ts",
-    "dev": "vite --config vite.dev.config.ts",
-    "build:dev": "vite build --watch"
+    "dev": "npm run build && vite --config vite.dev.config.ts"
   },
   "devDependencies": {
     "chart.js": "^4.5.1",

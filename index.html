@@ -1,398 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windows Task Manager - Real-time System Monitor</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="#" type="image/x-icon" />
+    <title>Real-time System Monitor</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
 
-        .task-manager {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            margin: 20px;
-            overflow: hidden;
-        }
+      .task-manager {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        margin: 20px;
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(90deg, #0078d4 0%, #005a9e 100%);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #005a9e;
-        }
+      .header {
+        background: linear-gradient(90deg, #0078d4 0%, #005a9e 100%);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #005a9e;
+      }
 
-        .header h1 {
-            font-size: 18px;
-            font-weight: 400;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      .header h1 {
+        font-size: 18px;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-        .header-icon {
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #0078d4;
-        }
+      .header-icon {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #0078d4;
+        padding: 15px 20px;
+      }
 
-        .system-info {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            font-size: 12px;
-        }
+      .system-info {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        font-size: 12px;
+      }
 
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
 
-        .tabs {
-            background: #f3f3f3;
-            border-bottom: 1px solid #d1d1d1;
-            display: flex;
-            padding: 0 20px;
-        }
+      .content {
+        padding: 20px;
+        background: white;
+      }
 
-        .tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 13px;
-            color: #666;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
 
-        .tab.active {
-            background: white;
-            color: #0078d4;
-            border-bottom-color: #0078d4;
-            font-weight: 500;
-        }
+      .metric-card {
+        background: #f8f9fa;
+        border: 1px solid #e1e5e9;
+        border-radius: 6px;
+        padding: 15px;
+      }
 
-        .tab:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.5);
-            color: #333;
-        }
+      .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
 
-        .content {
-            padding: 20px;
-            background: white;
-        }
+      .metric-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #323130;
+      }
 
+      .metric-value {
+        font-size: 24px;
+        font-weight: 300;
+        color: #0078d4;
+      }
+
+      .metric-unit {
+        font-size: 12px;
+        color: #666;
+        margin-left: 4px;
+      }
+
+      .chart-container {
+        height: 200px;
+        margin-top: 10px;
+      }
+
+      .processes-section {
+        margin-top: 30px;
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #323130;
+      }
+
+      .processes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .process-card {
+        background: #f8f9fa;
+        border: 1px solid #e1e5e9;
+        border-radius: 6px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .process-icon {
+        width: 32px;
+        height: 32px;
+        background: #0078d4;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .process-info {
+        flex: 1;
+      }
+
+      .process-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #323130;
+      }
+
+      .process-cpu {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .status-bar {
+        background: #f3f3f3;
+        border-top: 1px solid #d1d1d1;
+        padding: 8px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #107c10;
+      }
+
+      @media (max-width: 768px) {
         .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: #f8f9fa;
-            border: 1px solid #e1e5e9;
-            border-radius: 6px;
-            padding: 15px;
-        }
-
-        .metric-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .metric-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #323130;
-        }
-
-        .metric-value {
-            font-size: 24px;
-            font-weight: 300;
-            color: #0078d4;
-        }
-
-        .metric-unit {
-            font-size: 12px;
-            color: #666;
-            margin-left: 4px;
-        }
-
-        .chart-container {
-            height: 200px;
-            margin-top: 10px;
-        }
-
-        .processes-section {
-            margin-top: 30px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #323130;
+          grid-template-columns: 1fr;
         }
 
         .processes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+          grid-template-columns: 1fr;
         }
 
-        .process-card {
-            background: #f8f9fa;
-            border: 1px solid #e1e5e9;
-            border-radius: 6px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .system-info {
+          display: none;
         }
-
-        .process-icon {
-            width: 32px;
-            height: 32px;
-            background: #0078d4;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .process-info {
-            flex: 1;
-        }
-
-        .process-name {
-            font-size: 13px;
-            font-weight: 500;
-            color: #323130;
-        }
-
-        .process-cpu {
-            font-size: 11px;
-            color: #666;
-        }
-
-        .status-bar {
-            background: #f3f3f3;
-            border-top: 1px solid #d1d1d1;
-            padding: 8px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #107c10;
-        }
-
-        @media (max-width: 768px) {
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .processes-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .system-info {
-                display: none;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="task-manager">
-        <div class="header">
-            <h1>
-                <div class="header-icon">TM</div>
-                Task Manager
-            </h1>
-            <div class="system-info">
-                <div class="info-item">
-                    <span>🖥️</span>
-                    <span id="systemName">Windows 10 Pro</span>
-                </div>
-                <div class="info-item">
-                    <span>⏱️</span>
-                    <span id="uptime">Uptime: 0:00:00</span>
-                </div>
-                <div class="info-item">
-                    <span>🔋</span>
-                    <span id="battery">100%</span>
-                </div>
+      <div class="header">
+        <h1>
+          <div class="header-icon">TM</div>
+          Task Manager
+        </h1>
+        <div class="system-info">
+          <div class="info-item">
+            <span>🖥️</span>
+            <span id="systemName">System Monitor</span>
+          </div>
+          <div class="info-item">
+            <span>⏱️</span>
+            <span id="uptime">Uptime: 0:00:00</span>
+          </div>
+          <div class="info-item">
+            <span>🔋</span>
+            <span id="battery">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-title">CPU Usage</div>
+              <div class="metric-value">
+                <span id="cpu-value">0</span>
+                <span class="metric-unit">%</span>
+              </div>
             </div>
+            <div class="chart-container">
+              <canvas id="cpu-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-title">Memory Usage</div>
+              <div class="metric-value">
+                <span id="memory-value">0</span>
+                <span class="metric-unit">%</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="memory-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-title">Disk Usage</div>
+              <div class="metric-value">
+                <span id="disk-value">0</span>
+                <span class="metric-unit">%</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="disk-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-title">Network Usage</div>
+              <div class="metric-value">
+                <span id="network-value">0</span>
+                <span class="metric-unit">Mbps</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="network-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-title">GPU Usage</div>
+              <div class="metric-value">
+                <span id="gpu-value">0</span>
+                <span class="metric-unit">%</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="gpu-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-title">Temperature</div>
+              <div class="metric-value">
+                <span id="temp-value">0</span>
+                <span class="metric-unit">°C</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="temp-chart"></canvas>
+            </div>
+          </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab active" data-tab="performance">Performance</button>
-            <button class="tab" data-tab="processes">Processes</button>
-            <button class="tab" data-tab="app-history">App history</button>
-            <button class="tab" data-tab="startup">Startup</button>
+        <div class="processes-section">
+          <div class="section-title">Top Processes</div>
+          <div class="processes-grid" id="processes-grid">
+            <!-- Processes will be added dynamically -->
+          </div>
         </div>
+      </div>
 
-        <div class="content">
-            <div id="performance-tab" class="tab-content">
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">CPU Usage</div>
-                            <div class="metric-value">
-                                <span id="cpu-value">0</span>
-                                <span class="metric-unit">%</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="cpu-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">Memory Usage</div>
-                            <div class="metric-value">
-                                <span id="memory-value">0</span>
-                                <span class="metric-unit">%</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="memory-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">Disk Usage</div>
-                            <div class="metric-value">
-                                <span id="disk-value">0</span>
-                                <span class="metric-unit">%</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="disk-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">Network Usage</div>
-                            <div class="metric-value">
-                                <span id="network-value">0</span>
-                                <span class="metric-unit">Mbps</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="network-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">GPU Usage</div>
-                            <div class="metric-value">
-                                <span id="gpu-value">0</span>
-                                <span class="metric-unit">%</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="gpu-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">Temperature</div>
-                            <div class="metric-value">
-                                <span id="temp-value">0</span>
-                                <span class="metric-unit">°C</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="temp-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="processes-section">
-                    <div class="section-title">Top Processes</div>
-                    <div class="processes-grid" id="processes-grid">
-                        <!-- Processes will be added dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <div id="processes-tab" class="tab-content" style="display: none;">
-                <div class="section-title">All Processes</div>
-                <div class="processes-grid" id="all-processes-grid">
-                    <!-- All processes will be added dynamically -->
-                </div>
-            </div>
-
-            <div id="app-history-tab" class="tab-content" style="display: none;">
-                <div class="section-title">Application History</div>
-                <p style="color: #666; padding: 20px;">Application history data will appear here...</p>
-            </div>
-
-            <div id="startup-tab" class="tab-content" style="display: none;">
-                <div class="section-title">Startup Programs</div>
-                <p style="color: #666; padding: 20px;">Startup programs will appear here...</p>
-            </div>
+      <div class="status-bar">
+        <div class="status-item">
+          <div class="status-indicator"></div>
+          <span>System Running</span>
         </div>
-
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-indicator"></div>
-                <span>System Running</span>
-            </div>
-            <div class="status-item">
-                <span id="process-count">0</span> processes
-            </div>
-            <div class="status-item">
-                <span id="update-time">Last updated: Just now</span>
-            </div>
+        <div class="status-item">
+          <span id="process-count">0</span> processes
         </div>
+        <div class="status-item">
+          <span id="update-time">Last updated: Just now</span>
+        </div>
+      </div>
     </div>
 
     <!-- Use CDN versions for guaranteed compatibility -->
@@ -400,307 +346,318 @@
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="./dist/chartjs-plugin-streaming.js"></script>
-    
+
     <script>
-        console.log('🚀 Starting Windows Task Manager...');
-        console.log('Chart version:', Chart.version);
-        console.log('ChartStreaming available:', typeof ChartStreaming);
 
-        // Global variables
-        let charts = {};
-        let startTime = Date.now();
-        let processes = [];
+      // Global variables
+      let charts = {};
+      let startTime = Date.now();
+      let processes = [];
 
-        // Generate realistic metric values
-        function generateMetricValue(metric) {
-            const baseValues = {
-                cpu: 30,
-                memory: 45,
-                disk: 15,
-                network: 50,
-                gpu: 25,
-                temp: 45
-            };
+      // Generate realistic metric values
+      function generateMetricValue(metric) {
+        const baseValues = {
+          cpu: 30,
+          memory: 45,
+          disk: 15,
+          network: 50,
+          gpu: 25,
+          temp: 45
+        };
 
-            const variation = {
-                cpu: 40,
-                memory: 30,
-                disk: 25,
-                network: 200,
-                gpu: 60,
-                temp: 25
-            };
+        const variation = {
+          cpu: 40,
+          memory: 30,
+          disk: 25,
+          network: 50,
+          gpu: 60,
+          temp: 25
+        };
 
-            const base = baseValues[metric] || 50;
-            const varRange = variation[metric] || 30;
-            
-            // Add some realistic patterns
-            const time = Date.now() / 1000;
-            const wave = Math.sin(time / 10) * (varRange * 0.3);
-            const noise = (Math.random() - 0.5) * (varRange * 0.4);
-            
-            return Math.max(0, Math.min(100, base + wave + noise));
+        const base = baseValues[metric] || 50;
+        const varRange = variation[metric] || 30;
+
+        // Add some realistic patterns
+        const time = Date.now() / 1000;
+        const wave = Math.sin(time / 10) * (varRange * 0.3);
+        const noise = (Math.random() - 0.5) * (varRange * 0.4);
+
+        return Math.max(0, Math.min(100, base + wave + noise));
+      }
+
+      // Update metric display
+      function updateMetricDisplay(metric, value) {
+        const element = document.getElementById(`${metric}-value`);
+        if (element) {
+          if (metric === 'network') {
+            element.textContent = Math.round(value);
+          } else if (metric === 'temp') {
+            element.textContent = Math.round(value);
+          } else {
+            element.textContent = Math.round(value);
+          }
         }
+      }
 
-        // Update metric display
-        function updateMetricDisplay(metric, value) {
-            const element = document.getElementById(`${metric}-value`);
-            if (element) {
-                if (metric === 'network') {
-                    element.textContent = Math.round(value);
-                } else if (metric === 'temp') {
-                    element.textContent = Math.round(value);
-                } else {
-                    element.textContent = Math.round(value);
+      // Initialize charts
+      function initializeCharts() {
+
+        const baseChartOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: '#0078d4',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: {
+              type: 'realtime',
+              realtime: {
+                duration: 30000,
+                refresh: 1000,
+                delay: 1000,
+                onRefresh: function (chart) {
+                  const now = Date.now();
+                  const metricName = chart.canvas.id.replace('-chart', '');
+                  const value = generateMetricValue(metricName);
+
+                  chart.data.datasets[0].data.push({
+                    x: now,
+                    y: value
+                  });
+
+                  // Update display value
+                  updateMetricDisplay(metricName, value);
                 }
-            }
-        }
-
-        // Initialize charts
-        function initializeCharts() {
-            console.log('📊 Initializing charts...');
-            
-            const baseChartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        borderColor: '#0078d4',
-                        borderWidth: 1
-                    }
-                },
-                scales: {
-                    x: {
-                        type: 'realtime',
-                        realtime: {
-                            duration: 30000,
-                            refresh: 1000,
-                            delay: 1000,
-                            onRefresh: function(chart) {
-                                console.log('🔄 onRefresh called for:', chart.canvas.id);
-                                const now = Date.now();
-                                const metricName = chart.canvas.id.replace('-chart', '');
-                                const value = generateMetricValue(metricName);
-                                
-                                console.log('📊 Adding data:', metricName, value);
-                                
-                                chart.data.datasets[0].data.push({
-                                    x: now,
-                                    y: value
-                                });
-
-                                // Update display value
-                                updateMetricDisplay(metricName, value);
-                            }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            color: '#666',
-                            font: {
-                                size: 10
-                            }
-                        }
-                    }
-                },
-                elements: {
-                    line: {
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    point: {
-                        radius: 0,
-                        hoverRadius: 4
-                    }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#666',
+                font: {
+                  size: 10
                 }
-            };
-
-            // CPU Chart
-            try {
-                charts.cpu = new Chart(document.getElementById('cpu-chart'), {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            data: [],
-                            borderColor: '#0078d4',
-                            backgroundColor: 'rgba(0, 120, 212, 0.1)',
-                            fill: true
-                        }]
-                    },
-                    options: baseChartOptions
-                });
-                console.log('✅ CPU chart created');
-            } catch (error) {
-                console.error('❌ CPU chart error:', error);
+              }
             }
-
-            // Memory Chart
-            try {
-                charts.memory = new Chart(document.getElementById('memory-chart'), {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            data: [],
-                            borderColor: '#107c10',
-                            backgroundColor: 'rgba(16, 124, 16, 0.1)',
-                            fill: true
-                        }]
-                    },
-                    options: baseChartOptions
-                });
-                console.log('✅ Memory chart created');
-            } catch (error) {
-                console.error('❌ Memory chart error:', error);
+          },
+          elements: {
+            line: {
+              borderWidth: 2,
+              tension: 0.4,
+              fill: true
+            },
+            point: {
+              radius: 0,
+              hoverRadius: 4
             }
+          }
+        };
 
-            // Disk Chart
-            try {
-                charts.disk = new Chart(document.getElementById('disk-chart'), {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            data: [],
-                            borderColor: '#ff8c00',
-                            backgroundColor: 'rgba(255, 140, 0, 0.1)',
-                            fill: true
-                        }]
-                    },
-                    options: baseChartOptions
-                });
-                console.log('✅ Disk chart created');
-            } catch (error) {
-                console.error('❌ Disk chart error:', error);
-            }
-
-            // Network Chart
-            try {
-                charts.network = new Chart(document.getElementById('network-chart'), {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            data: [],
-                            borderColor: '#8b4789',
-                            backgroundColor: 'rgba(139, 71, 137, 0.1)',
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        ...baseChartOptions,
-                        scales: {
-                            ...baseChartOptions.scales,
-                            y: {
-                                ...baseChartOptions.scales.y,
-                                max: 1000
-                            }
-                        }
-                    }
-                });
-                console.log('✅ Network chart created');
-            } catch (error) {
-                console.error('❌ Network chart error:', error);
-            }
-
-            // GPU Chart
-            try {
-                charts.gpu = new Chart(document.getElementById('gpu-chart'), {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            data: [],
-                            borderColor: '#d13438',
-                            backgroundColor: 'rgba(209, 52, 56, 0.1)',
-                            fill: true
-                        }]
-                    },
-                    options: baseChartOptions
-                });
-                console.log('✅ GPU chart created');
-            } catch (error) {
-                console.error('❌ GPU chart error:', error);
-            }
-
-            // Temperature Chart
-            try {
-                charts.temp = new Chart(document.getElementById('temp-chart'), {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            data: [],
-                            borderColor: '#ca5010',
-                            backgroundColor: 'rgba(202, 80, 16, 0.1)',
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        ...baseChartOptions,
-                        scales: {
-                            ...baseChartOptions.scales,
-                            y: {
-                                ...baseChartOptions.scales.y,
-                                max: 100
-                            }
-                        }
-                    }
-                });
-                console.log('✅ Temperature chart created');
-            } catch (error) {
-                console.error('❌ Temperature chart error:', error);
-            }
+        // CPU Chart
+        try {
+          charts.cpu = new Chart(document.getElementById('cpu-chart'), {
+            type: 'line',
+            data: {
+              datasets: [
+                {
+                  data: [],
+                  borderColor: '#0078d4',
+                  backgroundColor: 'rgba(0, 120, 212, 0.1)',
+                  fill: true
+                }
+              ]
+            },
+            options: baseChartOptions
+          });
+        } catch (error) {
         }
 
-        // Generate processes
-        function generateProcesses() {
-            const processNames = [
-                'System', 'Chrome', 'Firefox', 'VS Code', 'Spotify', 'Discord',
-                'Steam', 'Explorer', 'Antivirus', 'OneDrive', 'Teams', 'Slack',
-                'Node.js', 'Docker', 'MySQL', 'Photoshop', 'Word', 'Excel'
-            ];
-
-            const numProcesses = 8;
-            const newProcesses = [];
-
-            for (let i = 0; i < numProcesses; i++) {
-                const name = processNames[Math.floor(Math.random() * processNames.length)];
-                const cpu = Math.round(Math.random() * 80);
-                const memory = Math.round(Math.random() * 2000);
-                
-                newProcesses.push({
-                    name: name,
-                    cpu: cpu,
-                    memory: memory,
-                    icon: name.substring(0, 2).toUpperCase()
-                });
-            }
-
-            // Sort by CPU usage
-            newProcesses.sort((a, b) => b.cpu - a.cpu);
-            processes = newProcesses;
+        // Memory Chart
+        try {
+          charts.memory = new Chart(document.getElementById('memory-chart'), {
+            type: 'line',
+            data: {
+              datasets: [
+                {
+                  data: [],
+                  borderColor: '#107c10',
+                  backgroundColor: 'rgba(16, 124, 16, 0.1)',
+                  fill: true
+                }
+              ]
+            },
+            options: baseChartOptions
+          });
+        } catch (error) {
         }
 
-        // Update processes display
-        function updateProcessesDisplay() {
-            const grid = document.getElementById('processes-grid');
-            const allGrid = document.getElementById('all-processes-grid');
-            
-            if (grid) {
-                grid.innerHTML = processes.slice(0, 6).map(process => `
+        // Disk Chart
+        try {
+          charts.disk = new Chart(document.getElementById('disk-chart'), {
+            type: 'line',
+            data: {
+              datasets: [
+                {
+                  data: [],
+                  borderColor: '#ff8c00',
+                  backgroundColor: 'rgba(255, 140, 0, 0.1)',
+                  fill: true
+                }
+              ]
+            },
+            options: baseChartOptions
+          });
+        } catch (error) {
+        }
+
+        // Network Chart
+        try {
+          charts.network = new Chart(document.getElementById('network-chart'), {
+            type: 'line',
+            data: {
+              datasets: [
+                {
+                  data: [],
+                  borderColor: '#8b4789',
+                  backgroundColor: 'rgba(139, 71, 137, 0.1)',
+                  fill: true
+                }
+              ]
+            },
+            options: {
+              ...baseChartOptions,
+              scales: {
+                ...baseChartOptions.scales,
+                y: {
+                  ...baseChartOptions.scales.y,
+                  max: 100
+                }
+              }
+            }
+          });
+        } catch (error) {
+        }
+
+        // GPU Chart
+        try {
+          charts.gpu = new Chart(document.getElementById('gpu-chart'), {
+            type: 'line',
+            data: {
+              datasets: [
+                {
+                  data: [],
+                  borderColor: '#d13438',
+                  backgroundColor: 'rgba(209, 52, 56, 0.1)',
+                  fill: true
+                }
+              ]
+            },
+            options: baseChartOptions
+          });
+        } catch (error) {
+        }
+
+        // Temperature Chart
+        try {
+          charts.temp = new Chart(document.getElementById('temp-chart'), {
+            type: 'line',
+            data: {
+              datasets: [
+                {
+                  data: [],
+                  borderColor: '#ca5010',
+                  backgroundColor: 'rgba(202, 80, 16, 0.1)',
+                  fill: true
+                }
+              ]
+            },
+            options: {
+              ...baseChartOptions,
+              scales: {
+                ...baseChartOptions.scales,
+                y: {
+                  ...baseChartOptions.scales.y,
+                  max: 100
+                }
+              }
+            }
+          });
+        } catch (error) {
+        }
+      }
+
+      // Generate processes
+      function generateProcesses() {
+        const processNames = [
+          'System',
+          'Chrome',
+          'Firefox',
+          'VS Code',
+          'Spotify',
+          'Discord',
+          'Steam',
+          'File Manager',
+          'Security',
+          'Cloud Sync',
+          'Teams',
+          'Slack',
+          'Node.js',
+          'Docker',
+          'Database',
+          'Editor',
+          'Writer',
+          'Spreadsheet'
+        ];
+
+        const numProcesses = 8;
+        const newProcesses = [];
+
+        for (let i = 0; i < numProcesses; i++) {
+          const name =
+            processNames[Math.floor(Math.random() * processNames.length)];
+          const cpu = Math.round(Math.random() * 80);
+          const memory = Math.round(Math.random() * 2000);
+
+          newProcesses.push({
+            name: name,
+            cpu: cpu,
+            memory: memory,
+            icon: name.substring(0, 2).toUpperCase()
+          });
+        }
+
+        // Sort by CPU usage
+        newProcesses.sort((a, b) => b.cpu - a.cpu);
+        processes = newProcesses;
+      }
+
+      // Update processes display
+      function updateProcessesDisplay() {
+        const grid = document.getElementById('processes-grid');
+
+        if (grid) {
+          grid.innerHTML = processes
+            .slice(0, 6)
+            .map(
+              (process) => `
                     <div class="process-card">
                         <div class="process-icon">${process.icon}</div>
                         <div class="process-info">
@@ -708,104 +665,72 @@
                             <div class="process-cpu">CPU: ${process.cpu}% | Memory: ${process.memory}MB</div>
                         </div>
                     </div>
-                `).join('');
-            }
-
-            if (allGrid) {
-                allGrid.innerHTML = processes.map(process => `
-                    <div class="process-card">
-                        <div class="process-icon">${process.icon}</div>
-                        <div class="process-info">
-                            <div class="process-name">${process.name}</div>
-                            <div class="process-cpu">CPU: ${process.cpu}% | Memory: ${process.memory}MB</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Update process count
-            document.getElementById('process-count').textContent = processes.length;
+                `
+            )
+            .join('');
         }
 
-        // Update uptime
-        function updateUptime() {
-            const elapsed = Date.now() - startTime;
-            const hours = Math.floor(elapsed / 3600000);
-            const minutes = Math.floor((elapsed % 3600000) / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            
-            document.getElementById('uptime').textContent = 
-                `Uptime: ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        // Update process count
+        document.getElementById('process-count').textContent = processes.length;
+      }
+
+      // Update uptime
+      function updateUptime() {
+        const elapsed = Date.now() - startTime;
+        const hours = Math.floor(elapsed / 3600000);
+        const minutes = Math.floor((elapsed % 3600000) / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+
+        document.getElementById(
+          'uptime'
+        ).textContent = `Uptime: ${hours}:${minutes
+          .toString()
+          .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+
+      // Update last update time
+      function updateLastUpdateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        document.getElementById(
+          'update-time'
+        ).textContent = `Last updated: ${timeString}`;
+      }
+
+      // Initialize everything
+      function init() {
+        try {
+          initializeCharts();
+
+          generateProcesses();
+          updateProcessesDisplay();
+
+          // Update processes every 5 seconds
+          setInterval(() => {
+            generateProcesses();
+            updateProcessesDisplay();
+          }, 5000);
+
+          // Update uptime every second
+          setInterval(updateUptime, 1000);
+
+          // Update last update time every second
+          setInterval(updateLastUpdateTime, 1000);
+
+          // Initial updates
+          updateUptime();
+          updateLastUpdateTime();
+
+        } catch (error) {
         }
+      }
 
-        // Update last update time
-        function updateLastUpdateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('update-time').textContent = `Last updated: ${timeString}`;
-        }
-
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs and contents
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.style.display = 'none';
-                });
-
-                // Add active class to clicked tab
-                this.classList.add('active');
-
-                // Show corresponding content
-                const tabName = this.dataset.tab;
-                const content = document.getElementById(`${tabName}-tab`);
-                if (content) {
-                    content.style.display = 'block';
-                }
-            });
-        });
-
-        // Initialize everything
-        function init() {
-            console.log('🎯 Starting initialization...');
-            
-            try {
-                initializeCharts();
-                console.log('📊 Charts initialized');
-                
-                generateProcesses();
-                updateProcessesDisplay();
-                console.log('📋 Processes initialized');
-
-                // Update processes every 5 seconds
-                setInterval(() => {
-                    generateProcesses();
-                    updateProcessesDisplay();
-                }, 5000);
-
-                // Update uptime every second
-                setInterval(updateUptime, 1000);
-
-                // Update last update time every second
-                setInterval(updateLastUpdateTime, 1000);
-
-                // Initial updates
-                updateUptime();
-                updateLastUpdateTime();
-                
-                console.log('✅ Initialization complete!');
-            } catch (error) {
-                console.error('❌ Initialization error:', error);
-            }
-        }
-
-        // Start when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+      // Start when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     </script>
-</body>
+  </body>
 </html>
