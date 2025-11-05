@@ -18,7 +18,7 @@ export default defineConfig({
         exports: 'named'
       }
     },
-    sourcemap: false,
+    sourcemap: true,
     minify: 'terser',
     emptyOutDir: false
   }
