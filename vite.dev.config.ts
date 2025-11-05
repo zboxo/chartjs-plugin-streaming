@@ -7,7 +7,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: 'src/index.js',
+      entry: 'src/index.ts',
       name: 'ChartStreaming',
       fileName: 'chartjs-plugin-streaming'
     },

@@ -1,7 +1,8 @@
 import {defineConfig} from 'vite';
 import {resolve} from 'path';
+import {readFileSync} from 'fs';
 
-const pkg = require('./package.json');
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const banner = `/*!
  * ${pkg.name} v${pkg.version}
@@ -13,7 +14,7 @@ const banner = `/*!
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.js'),
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'ChartStreaming',
       fileName: () => 'chartjs-plugin-streaming.min.js',
       formats: ['umd']

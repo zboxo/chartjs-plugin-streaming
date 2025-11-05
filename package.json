@@ -1,6 +1,6 @@
 {
-  "name": "@robloche/chartjs-plugin-streaming",
-  "homepage": "https://github.com/Robloche/chartjs-plugin-streaming",
+  "name": "@aziham/chartjs-plugin-streaming",
+  "homepage": "https://github.com/aziham/chartjs-plugin-streaming",
   "description": "Chart.js plugin for live streaming data",
   "author": "Akihiko Kusanagi <nagi@nagi-p.com> (https://nagix.github.io/)",
   "version": "3.2.0",
@@ -12,10 +12,10 @@
   "types": "types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Robloche/chartjs-plugin-streaming.git"
+    "url": "https://github.com/aziham/chartjs-plugin-streaming.git"
   },
   "bugs": {
-    "url": "https://github.com/Robloche/chartjs-plugin-streaming/issues"
+    "url": "https://github.com/aziham/chartjs-plugin-streaming/issues"
   },
   "keywords": [
     "chart.js",
@@ -35,21 +35,15 @@
   },
   "scripts": {
     "bower": "node scripts/create-bower-json",
-    "build": "vite build && vite build --config vite.min.config.js",
-    "dev": "vite --config vite.dev.config.js",
+    "build": "vite build && vite build --config vite.min.config.ts",
+    "dev": "vite --config vite.dev.config.ts",
     "build:dev": "vite build --watch",
     "docs": "npm run build && vuepress build docs --no-cache",
     "docs:dev": "npm run build && vuepress dev docs --no-cache",
-    "lint-js": "eslint \"**/*.js\"",
-    "lint-md": "eslint \"**/*.md\"",
-    "lint-types": "eslint \"types/**/*.ts\"",
-    "lint": "concurrently \"npm:lint-*\"",
     "package": "npm run build && node scripts/create-packages"
   },
   "devDependencies": {
     "@simonbrunel/vuepress-plugin-versions": "^0.2.0",
-    "@typescript-eslint/eslint-plugin": "^5.47.0",
-    "@typescript-eslint/parser": "^5.47.0",
     "@vuepress/plugin-google-analytics": "^1.9.7",
     "@vuepress/plugin-html-redirect": "^0.1.4",
     "archiver": "^5.3.0",
@@ -58,12 +52,6 @@
     "chartjs-plugin-annotation": "^2.1.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-zoom": "^2.0.0",
-    "concurrently": "^7.6.0",
-    "eslint": "^8.30.0",
-    "eslint-config-chartjs": "^0.3.0",
-    "eslint-plugin-es": "^4.1.0",
-    "eslint-plugin-html": "^7.1.0",
-    "eslint-plugin-markdown": "^3.0.0",
     "luxon": "^3.1.1",
     "ng-hammerjs": "^2.0.8",
     "terser": "^5.19.0",
