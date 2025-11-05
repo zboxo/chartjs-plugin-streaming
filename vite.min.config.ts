@@ -14,7 +14,8 @@ export default defineConfig({
         globals: {
           'chart.js': 'Chart',
           'chart.js/helpers': 'Chart.helpers'
-        }
+        },
+        exports: 'named'
       }
     },
     sourcemap: false,

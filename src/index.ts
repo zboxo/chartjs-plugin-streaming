@@ -6,4 +6,6 @@ const registerables = [StreamingPlugin, RealTimeScale];
 
 Chart.register(registerables);
 
+// Export for TypeScript users
+export {StreamingPlugin, RealTimeScale};
 export default registerables;

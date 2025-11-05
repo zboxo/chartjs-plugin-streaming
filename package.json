@@ -5,11 +5,18 @@
   "author": "Hamza Aziane <hamza.aziane@pm.me>",
   "version": "3.2.0",
   "license": "MIT",
-  "jsdelivr": "dist/chartjs-plugin-streaming.min.js",
-  "unpkg": "dist/chartjs-plugin-streaming.min.js",
   "main": "dist/chartjs-plugin-streaming.js",
   "module": "dist/chartjs-plugin-streaming.esm.js",
   "types": "src/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/types/index.d.ts",
+      "import": "./dist/chartjs-plugin-streaming.esm.js",
+      "require": "./dist/chartjs-plugin-streaming.js"
+    }
+  },
+  "jsdelivr": "dist/chartjs-plugin-streaming.min.js",
+  "unpkg": "dist/chartjs-plugin-streaming.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/aziham/chartjs-plugin-streaming.git"
