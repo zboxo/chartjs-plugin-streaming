@@ -2,7 +2,7 @@
   "name": "@aziham/chartjs-plugin-streaming",
   "homepage": "https://github.com/aziham/chartjs-plugin-streaming",
   "description": "Chart.js plugin for live streaming data",
-  "author": "Akihiko Kusanagi <nagi@nagi-p.com> (https://nagix.github.io/)",
+  "author": "Hamza Aziane <hamza.aziane@pm.me>",
   "version": "3.2.0",
   "license": "MIT",
   "jsdelivr": "dist/chartjs-plugin-streaming.min.js",
