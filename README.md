@@ -10,11 +10,11 @@
 
 Forked from https://github.com/nagix/chartjs-plugin-streaming because it appears to be unmaintained.
 
-chartjs-plugin-streaming 3.x requires Chart.js 4.1.1 or later. If you need Chart.js 2.x support, use the following versions.
+chartjs-plugin-streaming 3.x requires Chart.js 4.5.1 or later. If you need Chart.js 2.x support, use the following versions.
 
 - For Chart.js 2.9.x, 2.8.x or 2.7.x, use [version 1.9.0](https://github.com/nagix/chartjs-plugin-streaming/releases/tag/v1.9.0) ([tutorials](https://nagix.github.io/chartjs-plugin-streaming/1.9.0/) and [samples](https://nagix.github.io/chartjs-plugin-streaming/1.9.0/samples/))
 - For Chart.js 2.6.x, use [version 1.2.0](https://github.com/nagix/chartjs-plugin-streaming/releases/tag/v1.2.0)
-- For Chart.js 4.x, use [version 3.0.0](https://github.com/Robloche/chartjs-plugin-streaming)
+- For Chart.js 4.x, use [version 3.1.0](https://github.com/Robloche/chartjs-plugin-streaming) or later
 
 ## Documentation
 
@@ -36,9 +36,23 @@ You first need to install node dependencies (requires [Node.js](https://nodejs.o
 npm install
 ```
 
+Start the development server to see a live Windows Task Manager demo:
+
+```bash
+npm run dev
+```
+
+This launches a comprehensive Windows 10-style Task Manager interface demonstrating:
+- Real-time CPU, Memory, Disk, Network, GPU, and Temperature monitoring
+- Live streaming charts with smooth animations
+- Dynamic process list with resource usage
+- Responsive design with modern UI
+- Multiple tabs (Performance, Processes, App History, Startup)
+
 The following commands will then be available from the repository root:
 
 ```bash
+npm run dev        # start development server with live demo
 npm run build      # build dist files
 npm run build:dev  # build and watch for changes
 npm run lint       # perform code linting

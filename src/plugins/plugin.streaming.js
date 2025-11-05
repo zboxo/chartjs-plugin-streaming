@@ -5,7 +5,7 @@ import {attachChart as annotationAttachChart, detachChart as annotationDetachCha
 import {update as tooltipUpdate} from '../plugins/plugin.tooltip';
 import {attachChart as zoomAttachChart, detachChart as zoomDetachChart} from '../plugins/plugin.zoom';
 import RealTimeScale from '../scales/scale.realtime';
-import {version} from '../../package.json';
+const version = '3.2.0';
 
 defaults.set('transitions', {
   quiet: {
@@ -40,7 +40,10 @@ function update(mode) {
 
   if (mode === 'quiet') {
     each(me.data.datasets, (dataset, datasetIndex) => {
-      delete me.getDatasetMeta(datasetIndex).controller?._setStyle;
+      const controller = me.getDatasetMeta(datasetIndex).controller;
+      if (controller) {
+        delete controller._setStyle;
+      }
     });
   }
 }
