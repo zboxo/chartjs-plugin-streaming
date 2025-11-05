@@ -47,7 +47,7 @@ You can download the latest version of `chartjs-plugin-streaming` from the [GitH
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@3.1.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@3.2.0"></script>
 ```
 
 ::: warning IMPORTANT

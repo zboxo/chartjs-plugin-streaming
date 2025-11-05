@@ -14,7 +14,7 @@ chartjs-plugin-streaming 3.x requires Chart.js 4.5.1 or later. If you need Chart
 
 - For Chart.js 2.9.x, 2.8.x or 2.7.x, use [version 1.9.0](https://github.com/nagix/chartjs-plugin-streaming/releases/tag/v1.9.0) ([tutorials](https://nagix.github.io/chartjs-plugin-streaming/1.9.0/) and [samples](https://nagix.github.io/chartjs-plugin-streaming/1.9.0/samples/))
 - For Chart.js 2.6.x, use [version 1.2.0](https://github.com/nagix/chartjs-plugin-streaming/releases/tag/v1.2.0)
-- For Chart.js 4.x, use [version 3.1.0](https://github.com/Robloche/chartjs-plugin-streaming) or later
+- For Chart.js 4.x, use [version 3.2.0](https://github.com/Robloche/chartjs-plugin-streaming) or later
 
 ## Documentation
 
