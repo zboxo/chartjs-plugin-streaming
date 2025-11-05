@@ -33,6 +33,7 @@
   ],
   "files": [
     "dist/*.js",
+    "dist/*.js.map",
     "src/types/*.d.ts"
   ],
   "scripts": {
