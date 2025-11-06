@@ -33,5 +33,18 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['chart.js']
-  }
+  },
+  plugins: [
+    {
+      name: 'redirect-to-demo',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url === '/' || req.url === '/index.html') {
+            req.url = '/demo.html';
+          }
+          next();
+        });
+      }
+    }
+  ]
 });

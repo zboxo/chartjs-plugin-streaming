@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="#" type="image/x-icon" />
-    <title>Real-time System Monitor</title>
+    <title>Streaming Plugin Demo</title>
     <style>
       * {
         margin: 0;
@@ -341,14 +341,13 @@
       </div>
     </div>
 
-    <!-- Use CDN versions for guaranteed compatibility -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <!-- Use local development packages -->
+    <script src="./node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="./node_modules/luxon/build/global/luxon.min.js"></script>
+    <script src="./node_modules/chartjs-adapter-luxon/dist/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="./dist/chartjs-plugin-streaming.js"></script>
 
     <script>
-
       // Global variables
       let charts = {};
       let startTime = Date.now();
@@ -401,7 +400,6 @@
 
       // Initialize charts
       function initializeCharts() {
-
         const baseChartOptions = {
           responsive: true,
           maintainAspectRatio: false,
@@ -487,8 +485,7 @@
             },
             options: baseChartOptions
           });
-        } catch (error) {
-        }
+        } catch (error) {}
 
         // Memory Chart
         try {
@@ -506,8 +503,7 @@
             },
             options: baseChartOptions
           });
-        } catch (error) {
-        }
+        } catch (error) {}
 
         // Disk Chart
         try {
@@ -525,8 +521,7 @@
             },
             options: baseChartOptions
           });
-        } catch (error) {
-        }
+        } catch (error) {}
 
         // Network Chart
         try {
@@ -553,8 +548,7 @@
               }
             }
           });
-        } catch (error) {
-        }
+        } catch (error) {}
 
         // GPU Chart
         try {
@@ -572,8 +566,7 @@
             },
             options: baseChartOptions
           });
-        } catch (error) {
-        }
+        } catch (error) {}
 
         // Temperature Chart
         try {
@@ -600,8 +593,7 @@
               }
             }
           });
-        } catch (error) {
-        }
+        } catch (error) {}
       }
 
       // Generate processes
@@ -720,9 +712,7 @@
           // Initial updates
           updateUptime();
           updateLastUpdateTime();
-
-        } catch (error) {
-        }
+        } catch (error) {}
       }
 
       // Start when DOM is ready
