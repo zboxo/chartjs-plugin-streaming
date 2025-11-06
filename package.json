@@ -37,8 +37,8 @@
     "src/types/*.d.ts"
   ],
   "scripts": {
-    "build": "vite build && vite build --config vite.min.config.ts",
-    "dev": "npm run build && vite --config vite.dev.config.ts"
+    "build": "vite build",
+    "dev": "npm run build && vite"
   },
   "devDependencies": {
     "chart.js": "^4.5.1",
@@ -49,7 +49,8 @@
     "luxon": "^3.7.2",
     "terser": "^5.36.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.0"
+    "vite": "^7.2.0",
+    "@types/node": "^24.10.0"
   },
   "peerDependencies": {
     "chart.js": "^4.5.1"
