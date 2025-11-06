@@ -2,7 +2,7 @@ import {getAxisMap} from '../helpers/helpers.streaming';
 
 const transitionKeys = {x: ['x', 'caretX'], y: ['y', 'caretY']};
 
-export function update(...args) {
+export function update(this: any, ...args: any[]): void {
   const me = this;
   const element = me.getActiveElements()[0];
 

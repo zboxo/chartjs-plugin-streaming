@@ -1,20 +1,29 @@
-import {registry} from 'chart.js';
+import {registry, Scale, Chart} from 'chart.js';
 import {isFinite} from 'chart.js/helpers';
 
-function scaleValue(scale, value, fallback) {
+interface ScaleValueResult {
+  value: number;
+  transitionable: boolean;
+}
+
+function scaleValue(scale: Scale, value: any, fallback: number): ScaleValueResult {
   value = typeof value === 'number' ? value : scale.parse(value);
   return isFinite(value) ?
     {value: scale.getPixelForValue(value), transitionable: true} :
-    {value: fallback};
+    {value: fallback, transitionable: false};
 }
 
-function updateBoxAnnotation(element, chart, options) {
+interface StreamingData {
+  [key: string]: { axisId: string; reverse?: boolean };
+}
+
+function updateBoxAnnotation(element: any, chart: Chart, options: any): void {
   const {scales, chartArea} = chart;
   const {xScaleID, yScaleID, xMin, xMax, yMin, yMax} = options;
   const xScale = scales[xScaleID];
   const yScale = scales[yScaleID];
   const {top, left, bottom, right} = chartArea;
-  const streaming = element.$streaming = {};
+  const streaming: StreamingData = element.$streaming = {};
 
   if (xScale) {
     const min = scaleValue(xScale, xMin, left);
@@ -49,16 +58,23 @@ function updateBoxAnnotation(element, chart, options) {
   }
 }
 
-function updateLineAnnotation(element, chart, options) {
+interface ClipArea {
+  left?: number;
+  right?: number;
+  top?: number;
+  bottom?: number;
+}
+
+function updateLineAnnotation(element: any, chart: Chart, options: any): ClipArea {
   const {scales, chartArea} = chart;
   const {scaleID, value} = options;
   const scale = scales[scaleID];
   const {top, left, bottom, right} = chartArea;
-  const streaming = element.$streaming = {};
+  const streaming: StreamingData = element.$streaming = {};
 
   if (scale) {
     const isHorizontal = scale.isHorizontal();
-    const pixel = scaleValue(scale, value);
+    const pixel = scaleValue(scale, value, 0);
 
     if (pixel.transitionable) {
       streaming[isHorizontal ? 'x' : 'y'] = {axisId: scaleID};
@@ -70,11 +86,11 @@ function updateLineAnnotation(element, chart, options) {
   const {xScaleID, yScaleID, xMin, xMax, yMin, yMax} = options;
   const xScale = scales[xScaleID];
   const yScale = scales[yScaleID];
-  const clip = {};
+  const clip: ClipArea = {};
 
   if (xScale) {
-    const min = scaleValue(xScale, xMin);
-    const max = scaleValue(xScale, xMax);
+    const min = scaleValue(xScale, xMin, left);
+    const max = scaleValue(xScale, xMax, right);
 
     if (min.transitionable) {
       streaming.x = {axisId: xScaleID};
@@ -89,8 +105,8 @@ function updateLineAnnotation(element, chart, options) {
   }
 
   if (yScale) {
-    const min = scaleValue(yScale, yMin);
-    const max = scaleValue(yScale, yMax);
+    const min = scaleValue(yScale, yMin, top);
+    const max = scaleValue(yScale, yMax, bottom);
 
     if (min.transitionable) {
       streaming.y = {axisId: yScaleID};
@@ -107,15 +123,15 @@ function updateLineAnnotation(element, chart, options) {
   return clip;
 }
 
-function updatePointAnnotation(element, chart, options) {
+function updatePointAnnotation(element: any, chart: Chart, options: any): void {
   const scales = chart.scales;
   const {xScaleID, yScaleID, xValue, yValue} = options;
   const xScale = scales[xScaleID];
   const yScale = scales[yScaleID];
-  const streaming = element.$streaming = {};
+  const streaming: StreamingData = element.$streaming = {};
 
   if (xScale) {
-    const x = scaleValue(xScale, xValue);
+    const x = scaleValue(xScale, xValue, 0);
 
     if (x.transitionable) {
       streaming.x = {axisId: xScaleID};
@@ -123,7 +139,7 @@ function updatePointAnnotation(element, chart, options) {
   }
 
   if (yScale) {
-    const y = scaleValue(yScale, yValue);
+    const y = scaleValue(yScale, yValue, 0);
 
     if (y.transitionable) {
       streaming.y = {axisId: yScaleID};
@@ -131,42 +147,47 @@ function updatePointAnnotation(element, chart, options) {
   }
 }
 
-function initAnnotationPlugin() {
+function initAnnotationPlugin(): void {
   const BoxAnnotation = registry.getElement('boxAnnotation');
   const LineAnnotation = registry.getElement('lineAnnotation');
   const PointAnnotation = registry.getElement('pointAnnotation');
-  const resolveBoxAnnotationProperties = BoxAnnotation.prototype.resolveElementProperties;
-  const resolveLineAnnotationProperties = LineAnnotation.prototype.resolveElementProperties;
-  const resolvePointAnnotationProperties = PointAnnotation.prototype.resolveElementProperties;
+  
+  if (!BoxAnnotation || !LineAnnotation || !PointAnnotation) {
+    return;
+  }
+  
+  const resolveBoxAnnotationProperties = (BoxAnnotation as any).prototype.resolveElementProperties;
+  const resolveLineAnnotationProperties = (LineAnnotation as any).prototype.resolveElementProperties;
+  const resolvePointAnnotationProperties = (PointAnnotation as any).prototype.resolveElementProperties;
 
-  BoxAnnotation.prototype.resolveElementProperties = function(chart, options) {
+  (BoxAnnotation as any).prototype.resolveElementProperties = function(chart: Chart, options: any) {
     updateBoxAnnotation(this, chart, options);
     return resolveBoxAnnotationProperties.call(this, chart, options);
   };
 
-  LineAnnotation.prototype.resolveElementProperties = function(chart, options) {
+  (LineAnnotation as any).prototype.resolveElementProperties = function(chart: Chart, options: any) {
     const chartArea = chart.chartArea;
-    chart.chartArea = updateLineAnnotation(this, chart, options);
+    (chart as any).chartArea = updateLineAnnotation(this, chart, options);
     const properties = resolveLineAnnotationProperties.call(this, chart, options);
-    chart.chartArea = chartArea;
+    (chart as any).chartArea = chartArea;
     return properties;
   };
 
-  PointAnnotation.prototype.resolveElementProperties = function(chart, options) {
+  (PointAnnotation as any).prototype.resolveElementProperties = function(chart: Chart, options: any) {
     updatePointAnnotation(this, chart, options);
     return resolvePointAnnotationProperties.call(this, chart, options);
   };
 }
 
-export function attachChart(plugin, chart) {
-  const streaming = chart.$streaming;
+export function attachChart(plugin: any, chart: Chart): void {
+  const streaming = (chart as any).$streaming;
 
   if (streaming.annotationPlugin !== plugin) {
     const afterUpdate = plugin.afterUpdate;
 
     initAnnotationPlugin();
     streaming.annotationPlugin = plugin;
-    plugin.afterUpdate = (_chart, args, options) => {
+    plugin.afterUpdate = function(this: any, _chart: Chart, args: any, options: any) {
       const mode = args.mode;
       const animationOpts = options.animation;
 
@@ -181,8 +202,8 @@ export function attachChart(plugin, chart) {
   }
 }
 
-export function getElements(chart) {
-  const plugin = chart.$streaming.annotationPlugin;
+export function getElements(chart: Chart): any[] {
+  const plugin = (chart as any).$streaming?.annotationPlugin;
 
   if (plugin) {
     return plugin.getAnnotations(chart);
@@ -190,7 +211,7 @@ export function getElements(chart) {
   return [];
 }
 
-export function detachChart(chart) {
-  delete chart.$streaming.annotationPlugin;
+export function detachChart(chart: Chart): void {
+  delete (chart as any).$streaming.annotationPlugin;
 }
 

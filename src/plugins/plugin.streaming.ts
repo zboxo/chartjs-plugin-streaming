@@ -7,6 +7,16 @@ import {attachChart as zoomAttachChart, detachChart as zoomDetachChart} from '..
 import RealTimeScale from '../scales/scale.realtime';
 const version = '3.2.0';
 
+interface StreamingContext {
+  render: (chart: Chart) => void;
+  canvas: HTMLCanvasElement;
+  mouseEventListener: (event: MouseEvent) => void;
+  lastMouseEvent?: any;
+  annotationPlugin?: any;
+  zoomPlugin?: any;
+  resetZoom?: any;
+}
+
 defaults.set('transitions', {
   quiet: {
     animation: {
@@ -17,11 +27,11 @@ defaults.set('transitions', {
 
 const transitionKeys = {x: ['x', 'cp1x', 'cp2x'], y: ['y', 'cp1y', 'cp2y']};
 
-function update(mode) {
+function update(this: Chart, mode: string): void {
   const me = this;
 
   if (mode === 'quiet') {
-    each(me.data.datasets, (dataset, datasetIndex) => {
+    each(me.data.datasets, (dataset: any, datasetIndex: number) => {
       const controller = me.getDatasetMeta(datasetIndex).controller;
 
       // check if valid
@@ -30,26 +40,26 @@ function update(mode) {
       }
 
       // Set transition mode to 'quiet'
-      controller._setStyle = function(element, index, _mode, active) {
-        DatasetController.prototype._setStyle.call(this, element, index, 'quiet', active);
+      (controller as any)._setStyle = function(element: any, index: number, _mode: string, active: boolean) {
+        (DatasetController.prototype as any)._setStyle.call(this, element, index, 'quiet' as any, active);
       };
     });
   }
 
-  Chart.prototype.update.call(me, mode);
+  Chart.prototype.update.call(me, mode as any);
 
   if (mode === 'quiet') {
-    each(me.data.datasets, (dataset, datasetIndex) => {
+    each(me.data.datasets, (dataset: any, datasetIndex: number) => {
       const controller = me.getDatasetMeta(datasetIndex).controller;
       if (controller) {
-        delete controller._setStyle;
+        delete (controller as any)._setStyle;
       }
     });
   }
 }
 
-function render(chart) {
-  const streaming = chart.$streaming;
+function render(chart: Chart): void {
+  const streaming = (chart as any).$streaming as StreamingContext;
 
   chart.render();
 
@@ -57,7 +67,7 @@ function render(chart) {
     setTimeout(() => {
       const lastMouseEvent = streaming.lastMouseEvent;
       if (lastMouseEvent) {
-        chart._eventHandler(lastMouseEvent);
+        (chart as any)._eventHandler(lastMouseEvent);
       }
     }, 0);
   }
@@ -68,10 +78,10 @@ export default {
 
   version,
 
-  beforeInit(chart) {
-    const streaming = chart.$streaming = chart.$streaming || {render};
+  beforeInit(chart: Chart) {
+    const streaming = (chart as any).$streaming = (chart as any).$streaming || {render};
     const canvas = streaming.canvas = chart.canvas;
-    const mouseEventListener = streaming.mouseEventListener = event => {
+    const mouseEventListener = streaming.mouseEventListener = (event: MouseEvent) => {
       const pos = getRelativePosition(event, chart);
       streaming.lastMouseEvent = {
         type: 'mousemove',
@@ -86,23 +96,25 @@ export default {
     canvas.addEventListener('mouseup', mouseEventListener);
   },
 
-  afterInit(chart) {
-    chart.update = update;
+  afterInit(chart: Chart) {
+    (chart as any).update = update;
   },
 
-  beforeUpdate(chart) {
+  beforeUpdate(chart: Chart) {
     const {scales, elements} = chart.options;
     const tooltip = chart.tooltip;
 
-    each(scales, ({type}) => {
-      if (type === 'realtime') {
-        // Allow Bézier control to be outside the chart
-        elements.line.capBezierPoints = false;
-      }
-    });
+    if (scales) {
+      each(scales, (scaleOptions: any) => {
+        if (scaleOptions.type === 'realtime') {
+          // Allow Bézier control to be outside the chart
+          (elements as any).line.capBezierPoints = false;
+        }
+      });
+    }
 
     if (tooltip) {
-      tooltip.update = tooltipUpdate;
+      (tooltip as any).update = tooltipUpdate;
     }
 
     try {
@@ -120,7 +132,7 @@ export default {
     }
   },
 
-  beforeDatasetUpdate(chart, args) {
+  beforeDatasetUpdate(chart: Chart, args: any) {
     const {meta, mode} = args;
 
     if (mode === 'quiet') {
@@ -128,13 +140,13 @@ export default {
 
       // Skip updating element options if show/hide transition is active
       if ($animations && $animations.visible && $animations.visible._active) {
-        controller.updateElement = noop;
-        controller.updateSharedOptions = noop;
+        (controller as any).updateElement = noop;
+        (controller as any).updateSharedOptions = noop;
       }
     }
   },
 
-  afterDatasetUpdate(chart, args) {
+  afterDatasetUpdate(chart: Chart, args: any) {
     const {meta, mode} = args;
     const {data: elements = [], dataset: element, controller} = meta;
 
@@ -146,12 +158,12 @@ export default {
     }
 
     if (mode === 'quiet') {
-      delete controller.updateElement;
-      delete controller.updateSharedOptions;
+      delete (controller as any).updateElement;
+      delete (controller as any).updateSharedOptions;
     }
   },
 
-  beforeDatasetDraw(chart, args) {
+  beforeDatasetDraw(chart: Chart, args: any) {
     const {ctx, chartArea, width, height} = chart;
     const {xAxisID, yAxisID, controller} = args.meta;
     const area = {
@@ -172,12 +184,12 @@ export default {
     clipArea(ctx, area);
   },
 
-  afterDatasetDraw(chart) {
+  afterDatasetDraw(chart: Chart) {
     unclipArea(chart.ctx);
   },
 
-  beforeEvent(chart, args) {
-    const streaming = chart.$streaming;
+  beforeEvent(chart: Chart, args: any) {
+    const streaming = (chart as any).$streaming as StreamingContext;
     const event = args.event;
 
     if (event.type === 'mousemove') {
@@ -189,19 +201,20 @@ export default {
     }
   },
 
-  afterDestroy(chart) {
-    const {scales, $streaming: streaming, tooltip} = chart;
+  afterDestroy(chart: Chart) {
+    const {scales, tooltip} = chart;
+    const streaming = (chart as any).$streaming as StreamingContext;
     const {canvas, mouseEventListener} = streaming;
 
-    delete chart.update;
+    delete (chart as any).update;
     if (tooltip) {
-      delete tooltip.update;
+      delete (tooltip as any).update;
     }
 
     canvas.removeEventListener('mousedown', mouseEventListener);
     canvas.removeEventListener('mouseup', mouseEventListener);
 
-    each(scales, scale => {
+    each(scales, (scale: any) => {
       if (scale instanceof RealTimeScale) {
         scale.destroy();
       }
@@ -219,6 +232,6 @@ export default {
   },
 
   descriptors: {
-    _scriptable: name => name !== 'onRefresh'
+    _scriptable: (name: string) => name !== 'onRefresh'
   }
 };

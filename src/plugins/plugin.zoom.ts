@@ -1,9 +1,14 @@
 import {each} from 'chart.js/helpers';
 import {clamp, resolveOption} from '../helpers/helpers.streaming';
+import {Chart, Scale} from 'chart.js';
 
-const chartStates = new WeakMap();
+interface ChartState {
+  originalScaleOptions: { [key: string]: { duration: number; delay: number } };
+}
 
-function getState(chart) {
+const chartStates = new WeakMap<Chart, ChartState>();
+
+function getState(chart: Chart): ChartState {
   let state = chartStates.get(chart);
 
   if (!state) {
@@ -13,15 +18,15 @@ function getState(chart) {
   return state;
 }
 
-function removeState(chart) {
+function removeState(chart: Chart): void {
   chartStates.delete(chart);
 }
 
-function storeOriginalScaleOptions(chart) {
+function storeOriginalScaleOptions(chart: Chart): { [key: string]: { duration: number; delay: number } } {
   const {originalScaleOptions} = getState(chart);
   const scales = chart.scales;
 
-  each(scales, scale => {
+  each(scales, (scale: Scale) => {
     const id = scale.id;
 
     if (!originalScaleOptions[id]) {
@@ -31,22 +36,32 @@ function storeOriginalScaleOptions(chart) {
       };
     }
   });
-  each(originalScaleOptions, (opt, key) => {
-    if (!scales[key]) {
+  each(originalScaleOptions, (opt: any, key: string) => {
+    if (!scales || !scales[key]) {
       delete originalScaleOptions[key];
     }
   });
   return originalScaleOptions;
 }
 
-function zoomRealTimeScale(scale, zoom, center, limits) {
-  const {chart, axis} = scale;
-  const {minDuration = 0, maxDuration = Infinity, minDelay = -Infinity, maxDelay = Infinity} = limits && limits[axis] || {};
-  const realtimeOpts = scale.options.realtime;
+interface ZoomLimits {
+  [key: string]: {
+    minDuration?: number;
+    maxDuration?: number;
+    minDelay?: number;
+    maxDelay?: number;
+  };
+}
+
+function zoomRealTimeScale(scale: Scale, zoom: number, center: { x: number; y: number }, limits?: ZoomLimits): boolean {
+  const {chart} = scale;
+  const axis = scale.id;
+  const {minDuration = 0, maxDuration = Infinity, minDelay = -Infinity, maxDelay = Infinity} = limits?.[axis] || {};
+  const realtimeOpts = (scale.options as any).realtime;
   const duration = resolveOption(scale, 'duration');
   const delay = resolveOption(scale, 'delay');
   const newDuration = clamp(duration * (2 - zoom), minDuration, maxDuration);
-  let maxPercent, newDelay;
+  let maxPercent: number, newDelay: number;
 
   storeOriginalScaleOptions(chart);
 
@@ -58,26 +73,27 @@ function zoomRealTimeScale(scale, zoom, center, limits) {
   newDelay = delay + maxPercent * (duration - newDuration);
   realtimeOpts.duration = newDuration;
   realtimeOpts.delay = clamp(newDelay, minDelay, maxDelay);
-  return newDuration !== scale.max - scale.min;
+  return newDuration !== (scale.max - scale.min);
 }
 
-function panRealTimeScale(scale, delta, limits) {
-  const {chart, axis} = scale;
-  const {minDelay = -Infinity, maxDelay = Infinity} = limits && limits[axis] || {};
+function panRealTimeScale(scale: Scale, delta: number, limits?: ZoomLimits): boolean {
+  const {chart} = scale;
+  const axis = scale.id;
+  const {minDelay = -Infinity, maxDelay = Infinity} = limits?.[axis] || {};
   const delay = resolveOption(scale, 'delay');
-  const newDelay = delay + (scale.getValueForPixel(delta) - scale.getValueForPixel(0));
+  const newDelay = delay + ((scale.getValueForPixel(delta) || 0) - (scale.getValueForPixel(0) || 0));
 
   storeOriginalScaleOptions(chart);
 
-  scale.options.realtime.delay = clamp(newDelay, minDelay, maxDelay);
+  (scale.options as any).realtime.delay = clamp(newDelay, minDelay, maxDelay);
   return true;
 }
 
-function resetRealTimeScaleOptions(chart) {
+function resetRealTimeScaleOptions(chart: Chart): void {
   const originalScaleOptions = storeOriginalScaleOptions(chart);
 
-  each(chart.scales, scale => {
-    const realtimeOptions = scale.options.realtime;
+  each(chart.scales, (scale: Scale) => {
+    const realtimeOptions = (scale.options as any).realtime;
 
     if (realtimeOptions) {
       const original = originalScaleOptions[scale.id];
@@ -93,19 +109,19 @@ function resetRealTimeScaleOptions(chart) {
   });
 }
 
-function initZoomPlugin(plugin) {
+function initZoomPlugin(plugin: any): void {
   plugin.zoomFunctions.realtime = zoomRealTimeScale;
   plugin.panFunctions.realtime = panRealTimeScale;
 }
 
-export function attachChart(plugin, chart) {
-  const streaming = chart.$streaming;
+export function attachChart(plugin: any, chart: Chart): void {
+  const streaming = (chart as any).$streaming;
 
   if (streaming.zoomPlugin !== plugin) {
-    const resetZoom = streaming.resetZoom = chart.resetZoom;
+    const resetZoom = streaming.resetZoom = (chart as any).resetZoom;
 
     initZoomPlugin(plugin);
-    chart.resetZoom = transition => {
+    (chart as any).resetZoom = (transition?: any) => {
       resetRealTimeScaleOptions(chart);
       resetZoom(transition);
     };
@@ -113,11 +129,11 @@ export function attachChart(plugin, chart) {
   }
 }
 
-export function detachChart(chart) {
-  const streaming = chart.$streaming;
+export function detachChart(chart: Chart): void {
+  const streaming = (chart as any).$streaming;
 
   if (streaming.zoomPlugin) {
-    chart.resetZoom = streaming.resetZoom;
+    (chart as any).resetZoom = streaming.resetZoom;
     removeState(chart);
     delete streaming.resetZoom;
     delete streaming.zoomPlugin;
