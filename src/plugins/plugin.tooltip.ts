@@ -1,6 +1,6 @@
-import {getAxisMap} from '../helpers/helpers.streaming';
+import { getAxisMap } from '../helpers/helpers.streaming';
 
-const transitionKeys = {x: ['x', 'caretX'], y: ['y', 'caretY']};
+const transitionKeys = { x: ['x', 'caretX'], y: ['y', 'caretY'] };
 
 export function update(this: any, ...args: any[]): void {
   const me = this;

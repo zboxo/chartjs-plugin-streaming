@@ -1,6 +1,6 @@
-import {each} from 'chart.js/helpers';
-import {clamp, resolveOption} from '../helpers/helpers.streaming';
-import {Chart, Scale} from 'chart.js';
+import { Chart, Scale } from 'chart.js';
+import { each } from 'chart.js/helpers';
+import { clamp, resolveOption } from '../helpers/helpers.streaming';
 
 interface ChartState {
   originalScaleOptions: { [key: string]: { duration: number; delay: number } };
@@ -12,7 +12,7 @@ function getState(chart: Chart): ChartState {
   let state = chartStates.get(chart);
 
   if (!state) {
-    state = {originalScaleOptions: {}};
+    state = { originalScaleOptions: {} };
     chartStates.set(chart, state);
   }
   return state;
@@ -22,8 +22,10 @@ function removeState(chart: Chart): void {
   chartStates.delete(chart);
 }
 
-function storeOriginalScaleOptions(chart: Chart): { [key: string]: { duration: number; delay: number } } {
-  const {originalScaleOptions} = getState(chart);
+function storeOriginalScaleOptions(chart: Chart): {
+  [key: string]: { duration: number; delay: number };
+} {
+  const { originalScaleOptions } = getState(chart);
   const scales = chart.scales;
 
   each(scales, (scale: Scale) => {
@@ -53,10 +55,20 @@ interface ZoomLimits {
   };
 }
 
-function zoomRealTimeScale(scale: Scale, zoom: number, center: { x: number; y: number }, limits?: ZoomLimits): boolean {
-  const {chart} = scale;
+function zoomRealTimeScale(
+  scale: Scale,
+  zoom: number,
+  center: { x: number; y: number },
+  limits?: ZoomLimits
+): boolean {
+  const { chart } = scale;
   const axis = scale.id;
-  const {minDuration = 0, maxDuration = Infinity, minDelay = -Infinity, maxDelay = Infinity} = limits?.[axis] || {};
+  const {
+    minDuration = 0,
+    maxDuration = Infinity,
+    minDelay = -Infinity,
+    maxDelay = Infinity
+  } = limits?.[axis] || {};
   const realtimeOpts = (scale.options as any).realtime;
   const duration = resolveOption(scale, 'duration');
   const delay = resolveOption(scale, 'delay');
@@ -73,15 +85,21 @@ function zoomRealTimeScale(scale: Scale, zoom: number, center: { x: number; y: n
   newDelay = delay + maxPercent * (duration - newDuration);
   realtimeOpts.duration = newDuration;
   realtimeOpts.delay = clamp(newDelay, minDelay, maxDelay);
-  return newDuration !== (scale.max - scale.min);
+  return newDuration !== scale.max - scale.min;
 }
 
-function panRealTimeScale(scale: Scale, delta: number, limits?: ZoomLimits): boolean {
-  const {chart} = scale;
+function panRealTimeScale(
+  scale: Scale,
+  delta: number,
+  limits?: ZoomLimits
+): boolean {
+  const { chart } = scale;
   const axis = scale.id;
-  const {minDelay = -Infinity, maxDelay = Infinity} = limits?.[axis] || {};
+  const { minDelay = -Infinity, maxDelay = Infinity } = limits?.[axis] || {};
   const delay = resolveOption(scale, 'delay');
-  const newDelay = delay + ((scale.getValueForPixel(delta) || 0) - (scale.getValueForPixel(0) || 0));
+  const newDelay =
+    delay +
+    ((scale.getValueForPixel(delta) || 0) - (scale.getValueForPixel(0) || 0));
 
   storeOriginalScaleOptions(chart);
 
@@ -118,7 +136,7 @@ export function attachChart(plugin: any, chart: Chart): void {
   const streaming = (chart as any).$streaming;
 
   if (streaming.zoomPlugin !== plugin) {
-    const resetZoom = streaming.resetZoom = (chart as any).resetZoom;
+    const resetZoom = (streaming.resetZoom = (chart as any).resetZoom);
 
     initZoomPlugin(plugin);
     (chart as any).resetZoom = (transition?: any) => {

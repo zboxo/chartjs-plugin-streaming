@@ -1,5 +1,11 @@
-import {callback as call, each, noop, requestAnimFrame, valueOrDefault} from 'chart.js/helpers';
-import { Chart, Scale } from 'chart.js';
+import { Scale } from 'chart.js';
+import {
+  callback as call,
+  each,
+  noop,
+  requestAnimFrame,
+  valueOrDefault
+} from 'chart.js/helpers';
 
 export function clamp(value: number, lower: number, upper: number): number {
   return Math.min(Math.max(value, lower), upper);
@@ -15,27 +21,31 @@ interface AxisMap {
   [key: string]: { axisId: string };
 }
 
-export function getAxisMap(element: any, {x, y}: {x: string[], y: string[]}, {xAxisID, yAxisID}: {xAxisID: string, yAxisID: string}): AxisMap {
+export function getAxisMap(
+  element: any,
+  { x, y }: { x: string[]; y: string[] },
+  { xAxisID, yAxisID }: { xAxisID: string; yAxisID: string }
+): AxisMap {
   const axisMap: AxisMap = {};
 
   each(x, (key: string) => {
-    axisMap[key] = {axisId: xAxisID};
+    axisMap[key] = { axisId: xAxisID };
   });
   each(y, (key: string) => {
-    axisMap[key] = {axisId: yAxisID};
+    axisMap[key] = { axisId: yAxisID };
   });
   return axisMap;
 }
 
 /**
-* Cancel animation polyfill
-*/
-const cancelAnimFrame = (function() {
+ * Cancel animation polyfill
+ */
+const cancelAnimFrame = (function () {
   if (typeof window === 'undefined') {
     return noop;
   }
   return window.cancelAnimationFrame;
-}());
+})();
 
 interface TimerContext {
   frameRequestID?: number;
@@ -44,7 +54,10 @@ interface TimerContext {
   refreshInterval?: number;
 }
 
-export function startFrameRefreshTimer(context: TimerContext, func: () => number): void {
+export function startFrameRefreshTimer(
+  context: TimerContext,
+  func: () => number
+): void {
   if (!context.frameRequestID) {
     const refresh = () => {
       const nextRefresh = context.nextRefresh || 0;
@@ -55,7 +68,8 @@ export function startFrameRefreshTimer(context: TimerContext, func: () => number
         const frameDuration = 1000 / (Math.max(newFrameRate, 0) || 30);
         const newNextRefresh = (context.nextRefresh || 0) + frameDuration || 0;
 
-        context.nextRefresh = newNextRefresh > now ? newNextRefresh : now + frameDuration;
+        context.nextRefresh =
+          newNextRefresh > now ? newNextRefresh : now + frameDuration;
       }
       context.frameRequestID = requestAnimFrame.call(window, refresh);
     };
@@ -82,7 +96,11 @@ export function stopDataRefreshTimer(context: TimerContext): void {
   }
 }
 
-export function startDataRefreshTimer(context: TimerContext, func: () => number, interval?: number): void {
+export function startDataRefreshTimer(
+  context: TimerContext,
+  func: () => number,
+  interval?: number
+): void {
   if (!context.refreshTimerID) {
     context.refreshTimerID = setInterval(() => {
       const newInterval = call(func, [], context) as number;

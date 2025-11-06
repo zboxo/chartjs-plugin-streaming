@@ -1,6 +1,23 @@
-import {defaults, TimeScale} from 'chart.js';
-import {_lookup, callback as call, each, isArray, isFinite, isNumber, noop, clipArea, unclipArea} from 'chart.js/helpers';
-import {resolveOption, startFrameRefreshTimer, stopFrameRefreshTimer, startDataRefreshTimer, stopDataRefreshTimer} from '../helpers/helpers.streaming';
+import { defaults, TimeScale } from 'chart.js';
+import {
+  _lookup,
+  callback as call,
+  clipArea,
+  each,
+  isArray,
+  isFinite,
+  isNumber,
+  noop,
+  unclipArea
+} from 'chart.js/helpers';
+import {
+  resolveOption,
+  startDataRefreshTimer,
+  startFrameRefreshTimer,
+  stopDataRefreshTimer,
+  stopFrameRefreshTimer
+} from '../helpers/helpers.streaming';
+import { getElements } from '../plugins/plugin.annotation';
 
 interface TimerContext {
   frameRequestID?: number;
@@ -8,7 +25,6 @@ interface TimerContext {
   refreshTimerID?: number;
   refreshInterval?: number;
 }
-import {getElements} from '../plugins/plugin.annotation';
 
 interface Interval {
   common: boolean;
@@ -72,11 +88,16 @@ const INTERVALS: Intervals = {
 const UNITS = Object.keys(INTERVALS);
 
 // Ported from Chart.js 2.8.0 35273ee.
-function determineStepSize(min: number, max: number, unit: string, capacity: number): number {
+function determineStepSize(
+  min: number,
+  max: number,
+  unit: string,
+  capacity: number
+): number {
   const range = max - min;
   const interval = INTERVALS[unit];
   if (!interval) return 1;
-  const {size: milliseconds, steps} = interval;
+  const { size: milliseconds, steps } = interval;
   let factor: number = 1;
 
   if (!steps) {
@@ -94,7 +115,12 @@ function determineStepSize(min: number, max: number, unit: string, capacity: num
 }
 
 // Ported from Chart.js 2.8.0 35273ee.
-function determineUnitForAutoTicks(minUnit: string, min: number, max: number, capacity: number): string {
+function determineUnitForAutoTicks(
+  minUnit: string,
+  min: number,
+  max: number,
+  capacity: number
+): string {
   const range = max - min;
   const ilen = UNITS.length;
 
@@ -102,7 +128,7 @@ function determineUnitForAutoTicks(minUnit: string, min: number, max: number, ca
     const unit = UNITS[i];
     const interval = INTERVALS[unit];
     if (!interval) continue;
-    const {common, size, steps} = interval;
+    const { common, size, steps } = interval;
     const factor = steps ? steps[steps.length - 1] : Number.MAX_SAFE_INTEGER;
 
     if (common && Math.ceil(range / (factor * size)) <= capacity) {
@@ -125,11 +151,15 @@ function determineMajorUnit(unit: string): string | undefined {
 }
 
 // Ported from Chart.js 3.2.0 e1404ac.
-function addTick(ticks: { [key: string]: boolean }, time: number, timestamps?: number[]): void {
+function addTick(
+  ticks: { [key: string]: boolean },
+  time: number,
+  timestamps?: number[]
+): void {
   if (!timestamps) {
     ticks[time] = true;
   } else if (timestamps.length) {
-    const {lo, hi} = _lookup(timestamps, time);
+    const { lo, hi } = _lookup(timestamps, time);
     const timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
     ticks[timestamp] = true;
   }
@@ -166,18 +196,21 @@ interface RemovalRange {
 }
 
 function clean(scale: any): void {
-  const {chart, id, max} = scale;
+  const { chart, id, max } = scale;
   const duration = resolveOption(scale, 'duration');
   const delay = resolveOption(scale, 'delay');
   const ttl = resolveOption(scale, 'ttl');
   const pause = resolveOption(scale, 'pause');
   const min = Date.now() - (isNaN(ttl) ? duration + delay : ttl);
-  let i: number, start: number, count: number, removalRange: RemovalRange | undefined;
+  let i: number,
+    start: number,
+    count: number,
+    removalRange: RemovalRange | undefined;
 
   // Remove old data
   each(chart.data.datasets, (dataset: any, datasetIndex: number) => {
     const meta = chart.getDatasetMeta(datasetIndex);
-    const axis = id === meta.xAxisID && 'x' || id === meta.yAxisID && 'y';
+    const axis = (id === meta.xAxisID && 'x') || (id === meta.yAxisID && 'y');
 
     if (axis) {
       const controller = meta.controller;
@@ -227,15 +260,20 @@ function clean(scale: any): void {
         };
       }
 
-      each((chart as any)._active, (item: any, index: number) => {
-        if (item.datasetIndex === datasetIndex && item.index >= start) {
-          if (item.index >= start + count) {
-            item.index -= count;
-          } else {
-            (chart as any)._active.splice(index, 1);
+      each(
+        (chart as any)._active,
+        (item: any, index: number) => {
+          if (item.datasetIndex === datasetIndex && item.index >= start) {
+            if (item.index >= start + count) {
+              item.index -= count;
+            } else {
+              (chart as any)._active.splice(index, 1);
+            }
           }
-        }
-      }, null, true);
+        },
+        null,
+        true
+      );
     }
   });
   if (removalRange) {
@@ -263,7 +301,7 @@ function transition(element: any, id: string, translate: number): void {
 }
 
 function scroll(scale: any): void {
-  const {chart, id, $realtime: realtime} = scale;
+  const { chart, id, $realtime: realtime } = scale;
   const duration = resolveOption(scale, 'duration');
   const delay = resolveOption(scale, 'delay');
   const isHorizontal = scale.isHorizontal();
@@ -271,7 +309,7 @@ function scroll(scale: any): void {
   const now = Date.now();
   const tooltip = chart.tooltip;
   const annotations = getElements(chart);
-  let offset = length * (now - realtime.head) / duration;
+  let offset = (length * (now - realtime.head)) / duration;
 
   if (isHorizontal === !!scale.options.reverse) {
     offset = -offset;
@@ -280,7 +318,7 @@ function scroll(scale: any): void {
   // Shift all the elements leftward or downward
   each(chart.data.datasets, (dataset: any, datasetIndex: number) => {
     const meta = chart.getDatasetMeta(datasetIndex);
-    const {data: elements = [], dataset: element} = meta;
+    const { data: elements = [], dataset: element } = meta;
 
     for (let i = 0, ilen = elements.length; i < ilen; ++i) {
       transition(elements[i], id, offset);
@@ -336,9 +374,9 @@ export default class RealTimeScale extends TimeScale {
 
   update(maxWidth: any, maxHeight: any, margins: any): void {
     const me = this;
-    const {$realtime: realtime, options} = me;
-    const {bounds, offset, ticks: ticksOpts} = options;
-    const {autoSkip, source, major: majorTicksOpts} = ticksOpts;
+    const { $realtime: realtime, options } = me;
+    const { bounds, offset, ticks: ticksOpts } = options;
+    const { autoSkip, source, major: majorTicksOpts } = ticksOpts;
     const majorEnabled = majorTicksOpts.enabled;
 
     if (resolveOption(me as any, 'pause')) {
@@ -428,19 +466,20 @@ export default class RealTimeScale extends TimeScale {
 
   draw(chartArea: any): void {
     const me = this;
-    const {chart, ctx} = me;
-    const area = me.isHorizontal() ?
-      {
-        left: chartArea.left,
-        top: 0,
-        right: chartArea.right,
-        bottom: chart.height
-      } : {
-        left: 0,
-        top: chartArea.top,
-        right: chart.width,
-        bottom: chartArea.bottom
-      };
+    const { chart, ctx } = me;
+    const area = me.isHorizontal()
+      ? {
+          left: chartArea.left,
+          top: 0,
+          right: chartArea.right,
+          bottom: chart.height
+        }
+      : {
+          left: 0,
+          top: chartArea.top,
+          right: chart.width,
+          bottom: chartArea.bottom
+        };
 
     (me as any)._gridLineItems = null;
     (me as any)._labelItems = null;
@@ -467,10 +506,14 @@ export default class RealTimeScale extends TimeScale {
     const max = me.$realtime.head! - delay;
     const min = max - duration;
     const capacity = (me as any)._getLabelCapacity(min);
-    const {time: timeOpts, ticks: ticksOpts} = me.options;
-    const minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
+    const { time: timeOpts, ticks: ticksOpts } = me.options;
+    const minor =
+      timeOpts.unit ||
+      determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
     const major = determineMajorUnit(minor);
-    const stepSize = (timeOpts as any).stepSize || determineStepSize(min, max, minor, capacity);
+    const stepSize =
+      (timeOpts as any).stepSize ||
+      determineStepSize(min, max, minor, capacity);
     const weekday = minor === 'week' ? timeOpts.isoWeekday : false;
     const majorTicksEnabled = ticksOpts.major.enabled;
     const hasWeekday = isNumber(weekday) || weekday === true;
@@ -489,7 +532,15 @@ export default class RealTimeScale extends TimeScale {
 
     // Prevent browser from freezing in case user options request millions of milliseconds
     if (adapter.diff(max, min, minor) > 100000 * stepSize) {
-      throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
+      throw new Error(
+        min +
+          ' and ' +
+          max +
+          ' are too far apart with stepSize of ' +
+          stepSize +
+          ' ' +
+          minor
+      );
     }
 
     time = first;
@@ -499,11 +550,20 @@ export default class RealTimeScale extends TimeScale {
       // we first aligned time on the previous `major` unit then add the number of full
       // stepSize there is between first and the previous major time.
       time = +adapter.startOf(time, major);
-      time = +adapter.add(time, ~~((first - time) / (interval.size * stepSize)) * stepSize, minor);
+      time = +adapter.add(
+        time,
+        ~~((first - time) / (interval.size * stepSize)) * stepSize,
+        minor
+      );
     }
 
-    const timestamps = ticksOpts.source === 'data' && (me as any).getDataTimestamps();
-    for (count = 0; time < max + refresh; time = +adapter.add(time, stepSize, minor), count++) {
+    const timestamps =
+      ticksOpts.source === 'data' && (me as any).getDataTimestamps();
+    for (
+      count = 0;
+      time < max + refresh;
+      time = +adapter.add(time, stepSize, minor), count++
+    ) {
       addTick(ticks, time, timestamps);
     }
 
@@ -511,7 +571,9 @@ export default class RealTimeScale extends TimeScale {
       addTick(ticks, time, timestamps);
     }
 
-    return Object.keys(ticks).sort((a, b) => +a - +b).map(x => +x) as any[];
+    return Object.keys(ticks)
+      .sort((a, b) => +a - +b)
+      .map((x) => +x) as any[];
   }
 }
 

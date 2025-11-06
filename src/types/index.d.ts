@@ -1,4 +1,11 @@
-import { Chart, ChartComponent, ChartType, TimeScale, TimeScaleOptions, Plugin } from 'chart.js';
+import {
+  Chart,
+  ChartComponent,
+  ChartType,
+  Plugin,
+  TimeScale,
+  TimeScaleOptions
+} from 'chart.js';
 
 interface Options {
   duration?: number;
@@ -12,21 +19,25 @@ interface Options {
 
 export type RealTimeScaleOptions = TimeScaleOptions & {
   realtime: Options;
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RealTimeScale<O extends RealTimeScaleOptions = RealTimeScaleOptions> extends TimeScale<O> {}
+export interface RealTimeScale<
+  O extends RealTimeScaleOptions = RealTimeScaleOptions
+> extends TimeScale<O> {}
 
 export const RealTimeScale: ChartComponent & {
   prototype: RealTimeScale;
-  new <O extends RealTimeScaleOptions = RealTimeScaleOptions>(cfg: Record<string, unknown>): RealTimeScale<O>;
+  new <O extends RealTimeScaleOptions = RealTimeScaleOptions>(
+    cfg: Record<string, unknown>
+  ): RealTimeScale<O>;
 };
 
 declare module 'chart.js' {
   interface CartesianScaleTypeRegistry {
     realtime: {
       options: RealTimeScaleOptions;
-    }
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

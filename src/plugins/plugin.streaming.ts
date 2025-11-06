@@ -1,9 +1,21 @@
-import {Chart, DatasetController, defaults, registry} from 'chart.js';
-import {each, noop, getRelativePosition, clipArea, unclipArea} from 'chart.js/helpers';
-import {getAxisMap} from '../helpers/helpers.streaming';
-import {attachChart as annotationAttachChart, detachChart as annotationDetachChart} from '../plugins/plugin.annotation';
-import {update as tooltipUpdate} from '../plugins/plugin.tooltip';
-import {attachChart as zoomAttachChart, detachChart as zoomDetachChart} from '../plugins/plugin.zoom';
+import { Chart, DatasetController, defaults, registry } from 'chart.js';
+import {
+  clipArea,
+  each,
+  getRelativePosition,
+  noop,
+  unclipArea
+} from 'chart.js/helpers';
+import { getAxisMap } from '../helpers/helpers.streaming';
+import {
+  attachChart as annotationAttachChart,
+  detachChart as annotationDetachChart
+} from '../plugins/plugin.annotation';
+import { update as tooltipUpdate } from '../plugins/plugin.tooltip';
+import {
+  attachChart as zoomAttachChart,
+  detachChart as zoomDetachChart
+} from '../plugins/plugin.zoom';
 import RealTimeScale from '../scales/scale.realtime';
 const version = '3.2.0';
 
@@ -25,7 +37,7 @@ defaults.set('transitions', {
   }
 });
 
-const transitionKeys = {x: ['x', 'cp1x', 'cp2x'], y: ['y', 'cp1y', 'cp2y']};
+const transitionKeys = { x: ['x', 'cp1x', 'cp2x'], y: ['y', 'cp1y', 'cp2y'] };
 
 function update(this: Chart, mode: string): void {
   const me = this;
@@ -40,8 +52,19 @@ function update(this: Chart, mode: string): void {
       }
 
       // Set transition mode to 'quiet'
-      (controller as any)._setStyle = function(element: any, index: number, _mode: string, active: boolean) {
-        (DatasetController.prototype as any)._setStyle.call(this, element, index, 'quiet' as any, active);
+      (controller as any)._setStyle = function (
+        element: any,
+        index: number,
+        _mode: string,
+        active: boolean
+      ) {
+        (DatasetController.prototype as any)._setStyle.call(
+          this,
+          element,
+          index,
+          'quiet' as any,
+          active
+        );
       };
     });
   }
@@ -79,9 +102,12 @@ export default {
   version,
 
   beforeInit(chart: Chart) {
-    const streaming = (chart as any).$streaming = (chart as any).$streaming || {render};
-    const canvas = streaming.canvas = chart.canvas;
-    const mouseEventListener = streaming.mouseEventListener = (event: MouseEvent) => {
+    const streaming = ((chart as any).$streaming = (chart as any)
+      .$streaming || { render });
+    const canvas = (streaming.canvas = chart.canvas);
+    const mouseEventListener = (streaming.mouseEventListener = (
+      event: MouseEvent
+    ) => {
       const pos = getRelativePosition(event, chart);
       streaming.lastMouseEvent = {
         type: 'mousemove',
@@ -90,7 +116,7 @@ export default {
         x: pos.x,
         y: pos.y
       };
-    };
+    });
 
     canvas.addEventListener('mousedown', mouseEventListener);
     canvas.addEventListener('mouseup', mouseEventListener);
@@ -101,7 +127,7 @@ export default {
   },
 
   beforeUpdate(chart: Chart) {
-    const {scales, elements} = chart.options;
+    const { scales, elements } = chart.options;
     const tooltip = chart.tooltip;
 
     if (scales) {
@@ -133,10 +159,10 @@ export default {
   },
 
   beforeDatasetUpdate(chart: Chart, args: any) {
-    const {meta, mode} = args;
+    const { meta, mode } = args;
 
     if (mode === 'quiet') {
-      const {controller, $animations} = meta;
+      const { controller, $animations } = meta;
 
       // Skip updating element options if show/hide transition is active
       if ($animations && $animations.visible && $animations.visible._active) {
@@ -147,8 +173,8 @@ export default {
   },
 
   afterDatasetUpdate(chart: Chart, args: any) {
-    const {meta, mode} = args;
-    const {data: elements = [], dataset: element, controller} = meta;
+    const { meta, mode } = args;
+    const { data: elements = [], dataset: element, controller } = meta;
 
     for (let i = 0, ilen = elements.length; i < ilen; ++i) {
       elements[i].$streaming = getAxisMap(elements[i], transitionKeys, meta);
@@ -164,8 +190,8 @@ export default {
   },
 
   beforeDatasetDraw(chart: Chart, args: any) {
-    const {ctx, chartArea, width, height} = chart;
-    const {xAxisID, yAxisID, controller} = args.meta;
+    const { ctx, chartArea, width, height } = chart;
+    const { xAxisID, yAxisID, controller } = args.meta;
     const area = {
       left: 0,
       top: 0,
@@ -202,9 +228,9 @@ export default {
   },
 
   afterDestroy(chart: Chart) {
-    const {scales, tooltip} = chart;
+    const { scales, tooltip } = chart;
     const streaming = (chart as any).$streaming as StreamingContext;
-    const {canvas, mouseEventListener} = streaming;
+    const { canvas, mouseEventListener } = streaming;
 
     delete (chart as any).update;
     if (tooltip) {
