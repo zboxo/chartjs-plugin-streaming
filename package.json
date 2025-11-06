@@ -19,7 +19,7 @@
   "unpkg": "dist/chartjs-plugin-streaming.min.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aziham/chartjs-plugin-streaming.git"
+    "url": "git+https://github.com/aziham/chartjs-plugin-streaming.git"
   },
   "bugs": {
     "url": "https://github.com/aziham/chartjs-plugin-streaming/issues"
